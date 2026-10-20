@@ -12,6 +12,8 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
@@ -108,7 +110,7 @@ public class Drivetrain extends SubsystemBase {
 
     odometry =
         new DifferentialDriveOdometry(
-            pigeon.getRotation2d(),
+            getRotation(),
             Units.inchesToMeters(getLeftInches()),
             Units.inchesToMeters(getRightInches()));
     SmartDashboard.putData("Field", field);
@@ -182,17 +184,24 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getHeadingDegrees() {
-    return pigeon.getYaw().getValueAsDouble();
+    double yaw = pigeon.getYaw().getValueAsDouble();
+    return DriveConstants.GYRO_REVERSED ? -yaw : yaw;
   }
 
-  public void resetHeading() {
+  private Rotation2d getRotation() {
+    return Rotation2d.fromDegrees(getHeadingDegrees());
+  }
+
+  public void resetSensors() {
+    resetEncoders();
     pigeon.setYaw(0);
+    odometry.resetPosition(Rotation2d.kZero, 0.0, 0.0, Pose2d.kZero);
   }
 
   @Override
   public void periodic() {
     odometry.update(
-        pigeon.getRotation2d(),
+        getRotation(),
         Units.inchesToMeters(getLeftInches()),
         Units.inchesToMeters(getRightInches()));
     field.setRobotPose(odometry.getPoseMeters());
@@ -215,7 +224,8 @@ public class Drivetrain extends SubsystemBase {
     leftEncoderSim.setRate(Units.metersToInches(driveSim.getLeftVelocityMetersPerSecond()));
     rightEncoderSim.setRate(Units.metersToInches(driveSim.getRightVelocityMetersPerSecond()));
     pigeon.getSimState().setSupplyVoltage(RobotController.getBatteryVoltage());
-    pigeon.getSimState().setRawYaw(driveSim.getHeading().getDegrees());
+    double simYaw = driveSim.getHeading().getDegrees();
+    pigeon.getSimState().setRawYaw(DriveConstants.GYRO_REVERSED ? -simYaw : simYaw);
   }
 
   private static double withSimFriction(double output) {

@@ -6,6 +6,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.DriveConstants;
+import frc.robot.TunableNumber;
 import frc.robot.subsystems.Drivetrain;
 
 public class DriveDistance extends Command {
@@ -14,6 +15,21 @@ public class DriveDistance extends Command {
   private double startInches;
   private double startHeadingDegrees;
   private double lastSetpointVelocity;
+  private double headingKp;
+  private double toleranceInches;
+
+  private final TunableNumber distanceKp =
+      new TunableNumber("Auto distance kP", DriveConstants.DISTANCE_KP);
+  private final TunableNumber distanceKd =
+      new TunableNumber("Auto distance kD", DriveConstants.DISTANCE_KD);
+  private final TunableNumber headingKpTunable =
+      new TunableNumber("Auto heading kP", DriveConstants.HEADING_KP);
+  private final TunableNumber toleranceTunable =
+      new TunableNumber("Auto tolerance inches", DriveConstants.DISTANCE_TOLERANCE_INCHES);
+  private final TunableNumber maxVelocity =
+      new TunableNumber("Auto max velocity in per sec", DriveConstants.MAX_VELOCITY_IN_PER_SEC);
+  private final TunableNumber maxAccel =
+      new TunableNumber("Auto max accel in per sec2", DriveConstants.MAX_ACCEL_IN_PER_SEC2);
 
   private final ProfiledPIDController distancePid =
       new ProfiledPIDController(
@@ -31,8 +47,6 @@ public class DriveDistance extends Command {
   public DriveDistance(Drivetrain drivetrain, double targetInches) {
     this.drivetrain = drivetrain;
     this.targetInches = targetInches;
-    distancePid.setTolerance(
-        DriveConstants.DISTANCE_TOLERANCE_INCHES, DriveConstants.VELOCITY_TOLERANCE_IN_PER_SEC);
     addRequirements(drivetrain);
   }
 
@@ -40,6 +54,11 @@ public class DriveDistance extends Command {
   public void initialize() {
     startInches = drivetrain.getAverageInches();
     startHeadingDegrees = drivetrain.getHeadingDegrees();
+    headingKp = headingKpTunable.get();
+    toleranceInches = toleranceTunable.get();
+    distancePid.setPID(distanceKp.get(), 0.0, distanceKd.get());
+    distancePid.setConstraints(new TrapezoidProfile.Constraints(maxVelocity.get(), maxAccel.get()));
+    distancePid.setTolerance(toleranceInches, DriveConstants.VELOCITY_TOLERANCE_IN_PER_SEC);
     distancePid.reset(0.0);
     lastSetpointVelocity = 0.0;
   }
@@ -57,7 +76,7 @@ public class DriveDistance extends Command {
     } else {
       double errorInches = targetInches - traveledInches;
       feedforwardOutput =
-          Math.abs(errorInches) > DriveConstants.DISTANCE_TOLERANCE_INCHES
+          Math.abs(errorInches) > toleranceInches
               ? feedforward.getKs() * Math.signum(errorInches)
               : 0.0;
     }
@@ -65,7 +84,7 @@ public class DriveDistance extends Command {
 
     double forward = pidOutput + feedforwardOutput;
     double correction =
-        DriveConstants.HEADING_KP * (drivetrain.getHeadingDegrees() - startHeadingDegrees);
+        headingKp * (drivetrain.getHeadingDegrees() - startHeadingDegrees);
     drivetrain.tankDrive(forward + correction, forward - correction);
 
     SmartDashboard.putNumber("Auto/Setpoint inches", setpoint.position);

@@ -14,8 +14,6 @@ import frc.robot.commands.DriveDistance;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
-  private static final double DEADBAND = 0.08;
-
   private final Drivetrain drivetrain = new Drivetrain();
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -25,6 +23,8 @@ public class RobotContainer {
       new SlewRateLimiter(1.0 / DriveConstants.TELEOP_RAMP_SECONDS);
   private final SlewRateLimiter maxOutputLimiter =
       new SlewRateLimiter(1.0 / DriveConstants.TELEOP_RAMP_SECONDS);
+  private final TunableNumber teleopMaxOutput =
+      new TunableNumber("Teleop max output", DriveConstants.TELEOP_MAX_OUTPUT);
 
   public RobotContainer() {
     configureBindings();
@@ -32,19 +32,23 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    double turnSign = DriveConstants.INVERT_TURN ? -1.0 : 1.0;
     drivetrain.setDefaultCommand(
         Commands.run(
             () ->
                 drivetrain.arcadeDrive(
                     forwardLimiter.calculate(
-                        MathUtil.applyDeadband(-driverController.getLeftY(), DEADBAND)),
+                        MathUtil.applyDeadband(-driverController.getLeftY(), DriveConstants.DEADBAND)),
                     rotationLimiter.calculate(
-                        MathUtil.applyDeadband(-driverController.getRightX(), DEADBAND)),
+                        turnSign * MathUtil.applyDeadband(-driverController.getRightX(), DriveConstants.DEADBAND)),
                     maxOutputLimiter.calculate(
                         driverController.getHID().getRightBumperButton()
                             ? 1.0
-                            : DriveConstants.TELEOP_MAX_OUTPUT)),
+                            : teleopMaxOutput.get())),
             drivetrain));
+
+    SmartDashboard.putData(
+        "Reset sensors", Commands.runOnce(drivetrain::resetSensors).ignoringDisable(true));
 
     Trigger testMode = new Trigger(DriverStation::isTest);
     driverController
