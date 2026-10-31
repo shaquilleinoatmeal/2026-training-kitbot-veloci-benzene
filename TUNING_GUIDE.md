@@ -20,8 +20,8 @@ before moving on, because later steps will be wrong too.
 4. **Commit after every step that works**, with a message saying what you changed and why.
 5. **Safety:**
    - First test of anything new: **robot on blocks** (wheels off the ground).
-   - Someone always has a hand near the **space bar** (disables the robot in Driver Station).
-     Enter = emergency stop.
+   - Someone always has a hand near the keyboard in Driver Station: **Enter** disables the robot,
+     **space bar** is emergency stop (needs a robot reboot after).
    - Clear the area in front of and behind the robot before enabling. Yell "ENABLING".
    - Use a charged battery (above 12.5 V when resting). A dead battery makes all tuning lie to you.
 
@@ -189,7 +189,7 @@ Auton ends when it's within `Auto tolerance inches` of 120 and nearly stopped, o
 
 1. Robot on the floor, tape mark at the starting line and at 10 ft.
 2. Disabled → click **Reset sensors** → pick **Drive 10 ft** in the `Auto` chooser.
-3. Driver Station → **Autonomous** → Enable. Hand on space bar.
+3. Driver Station → **Autonomous** → Enable. Hand near Enter (disable).
 4. After it stops, write down:
    - Where it actually stopped (tape measure from start, inches)
    - `Drive/Average inches` (what the robot thinks)
