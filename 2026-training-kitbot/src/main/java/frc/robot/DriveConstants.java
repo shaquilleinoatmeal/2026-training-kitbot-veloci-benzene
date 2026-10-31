@@ -15,11 +15,14 @@ public final class DriveConstants {
   public static final double VOLTAGE_COMPENSATION_VOLTS = 12.0;
   public static final double TELEOP_RAMP_SECONDS = 0.15;
   public static final double TELEOP_MAX_OUTPUT = 0.6;
+  public static final double DEADBAND = 0.08;
+  public static final boolean INVERT_TURN = false;
 
   public static final int[] LEFT_ENCODER_PORTS = {0, 1};
   public static final int[] RIGHT_ENCODER_PORTS = {2, 3};
   public static final boolean LEFT_ENCODER_REVERSED = false;
   public static final boolean RIGHT_ENCODER_REVERSED = true;
+  public static final boolean GYRO_REVERSED = false;
 
   public static final double ENCODER_CYCLES_PER_REV = 2048;
   public static final double ENCODER_TURNS_PER_WHEEL_TURN = 1.0;
