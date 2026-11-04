@@ -38,7 +38,7 @@ public class RobotContainer {
             () ->
                 drivetrain.arcadeDrive(
                     forwardLimiter.calculate(
-                        MathUtil.applyDeadband(-driverController.getLeftY(), DriveConstants.DEADBAND)),
+                        MathUtil.applyDeadband(driverController.getLeftY(), DriveConstants.DEADBAND)),
                     rotationLimiter.calculate(
                         turnSign * MathUtil.applyDeadband(-driverController.getRightX(), DriveConstants.DEADBAND)),
                     maxOutputLimiter.calculate(
