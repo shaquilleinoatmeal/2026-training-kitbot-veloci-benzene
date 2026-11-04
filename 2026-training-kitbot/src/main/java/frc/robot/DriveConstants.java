@@ -19,8 +19,10 @@ public final class DriveConstants {
   public static final double DEADBAND = 0.08;
   public static final boolean INVERT_TURN = true;
 
-  public static final int[] LEFT_ENCODER_PORTS = {0, 1};
-  public static final int[] RIGHT_ENCODER_PORTS = {2, 3};
+  // Each encoder plugs into the data port on top of a SPARK MAX (not the roboRIO DIO).
+  // Set these to the CAN ID of the SPARK MAX that each encoder cable goes into.
+  public static final int LEFT_ENCODER_MOTOR_ID = LEFT_LEADER_ID;
+  public static final int RIGHT_ENCODER_MOTOR_ID = RIGHT_FOLLOWER_ID;
   public static final boolean LEFT_ENCODER_REVERSED = false;
   public static final boolean RIGHT_ENCODER_REVERSED = true;
   public static final boolean GYRO_REVERSED = true;
@@ -30,10 +32,12 @@ public final class DriveConstants {
   public static final double WHEEL_DIAMETER_INCHES = 6.0;
   public static final double CALIBRATION_FACTOR = 1.0;
 
-  public static final double INCHES_PER_CYCLE =
-      (Math.PI * WHEEL_DIAMETER_INCHES)
-          / (ENCODER_CYCLES_PER_REV * ENCODER_TURNS_PER_WHEEL_TURN)
-          * CALIBRATION_FACTOR;
+  // The SPARK MAX counts every edge of both A and B channels: 4 counts per cycle.
+  public static final int ENCODER_COUNTS_PER_REV = (int) (ENCODER_CYCLES_PER_REV * 4);
+
+  // The SPARK MAX reports encoder rotations; this turns one rotation into inches driven.
+  public static final double INCHES_PER_ENCODER_REV =
+      (Math.PI * WHEEL_DIAMETER_INCHES) / ENCODER_TURNS_PER_WHEEL_TURN * CALIBRATION_FACTOR;
 
   public static final double DISTANCE_KP = 0.02;
   public static final double DISTANCE_KD = 0.002;

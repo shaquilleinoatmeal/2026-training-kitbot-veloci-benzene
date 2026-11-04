@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -16,7 +17,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,16 +56,11 @@ public class Drivetrain extends SubsystemBase {
 
   private final Pigeon2 pigeon = new Pigeon2(DriveConstants.PIGEON_ID);
 
-  private final Encoder leftEncoder =
-      new Encoder(
-          DriveConstants.LEFT_ENCODER_PORTS[0],
-          DriveConstants.LEFT_ENCODER_PORTS[1],
-          DriveConstants.LEFT_ENCODER_REVERSED);
-  private final Encoder rightEncoder =
-      new Encoder(
-          DriveConstants.RIGHT_ENCODER_PORTS[0],
-          DriveConstants.RIGHT_ENCODER_PORTS[1],
-          DriveConstants.RIGHT_ENCODER_REVERSED);
+  // The encoders are plugged into SPARK MAX data ports, picked by CAN ID in DriveConstants.
+  private final SparkMax leftEncoderMotor = motorWithId(DriveConstants.LEFT_ENCODER_MOTOR_ID);
+  private final SparkMax rightEncoderMotor = motorWithId(DriveConstants.RIGHT_ENCODER_MOTOR_ID);
+  private final RelativeEncoder leftEncoder = leftEncoderMotor.getEncoder();
+  private final RelativeEncoder rightEncoder = rightEncoderMotor.getEncoder();
 
   private final DifferentialDriveOdometry odometry;
   private final Field2d field = new Field2d();
@@ -92,8 +86,8 @@ public class Drivetrain extends SubsystemBase {
               this));
 
   private DifferentialDrivetrainSim driveSim;
-  private EncoderSim leftEncoderSim;
-  private EncoderSim rightEncoderSim;
+  private double simLeftOffsetInches;
+  private double simRightOffsetInches;
 
   public Drivetrain() {
     configure(leftLeader, baseConfig());
@@ -104,9 +98,8 @@ public class Drivetrain extends SubsystemBase {
         rightFollower, baseConfig().follow(rightLeader, DriveConstants.FOLLOWER_OPPOSES_LEADER));
     drive.setDeadband(0.0);
 
-    leftEncoder.setDistancePerPulse(DriveConstants.INCHES_PER_CYCLE);
-    rightEncoder.setDistancePerPulse(DriveConstants.INCHES_PER_CYCLE);
-    resetEncoders();
+    configureEncoder(leftEncoderMotor, DriveConstants.LEFT_ENCODER_REVERSED);
+    configureEncoder(rightEncoderMotor, DriveConstants.RIGHT_ENCODER_REVERSED);
 
     odometry =
         new DifferentialDriveOdometry(
@@ -119,9 +112,30 @@ public class Drivetrain extends SubsystemBase {
       driveSim =
           DifferentialDrivetrainSim.createKitbotSim(
               KitbotMotor.kDualCIMPerSide, KitbotGearing.k10p71, KitbotWheelSize.kSixInch, null);
-      leftEncoderSim = new EncoderSim(leftEncoder);
-      rightEncoderSim = new EncoderSim(rightEncoder);
     }
+    resetEncoders();
+  }
+
+  private SparkMax motorWithId(int canId) {
+    for (SparkMax motor : new SparkMax[] {leftLeader, leftFollower, rightLeader, rightFollower}) {
+      if (motor.getDeviceId() == canId) {
+        return motor;
+      }
+    }
+    throw new IllegalArgumentException(
+        "Encoder motor ID " + canId + " is not one of the drive motor IDs in DriveConstants");
+  }
+
+  private static void configureEncoder(SparkMax motor, boolean reversed) {
+    SparkMaxConfig config = new SparkMaxConfig();
+    config
+        .encoder
+        .countsPerRevolution(DriveConstants.ENCODER_COUNTS_PER_REV)
+        .inverted(reversed)
+        .positionConversionFactor(DriveConstants.INCHES_PER_ENCODER_REV)
+        .velocityConversionFactor(DriveConstants.INCHES_PER_ENCODER_REV / 60.0);
+    // Applied on top of the motor settings above, so keep them (no reset).
+    motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   private static SparkMaxConfig baseConfig() {
@@ -159,24 +173,41 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetEncoders() {
-    leftEncoder.reset();
-    rightEncoder.reset();
+    leftEncoder.setPosition(0);
+    rightEncoder.setPosition(0);
+    if (driveSim != null) {
+      simLeftOffsetInches = Units.metersToInches(driveSim.getLeftPositionMeters());
+      simRightOffsetInches = Units.metersToInches(driveSim.getRightPositionMeters());
+    }
   }
 
+  // Simulation has no real SPARK MAX encoders, so it reads the simulated drivetrain instead.
   public double getLeftInches() {
-    return leftEncoder.getDistance();
+    if (driveSim != null) {
+      return Units.metersToInches(driveSim.getLeftPositionMeters()) - simLeftOffsetInches;
+    }
+    return leftEncoder.getPosition();
   }
 
   public double getRightInches() {
-    return rightEncoder.getDistance();
+    if (driveSim != null) {
+      return Units.metersToInches(driveSim.getRightPositionMeters()) - simRightOffsetInches;
+    }
+    return rightEncoder.getPosition();
   }
 
   public double getLeftInchesPerSecond() {
-    return leftEncoder.getRate();
+    if (driveSim != null) {
+      return Units.metersToInches(driveSim.getLeftVelocityMetersPerSecond());
+    }
+    return leftEncoder.getVelocity();
   }
 
   public double getRightInchesPerSecond() {
-    return rightEncoder.getRate();
+    if (driveSim != null) {
+      return Units.metersToInches(driveSim.getRightVelocityMetersPerSecond());
+    }
+    return rightEncoder.getVelocity();
   }
 
   public double getAverageInches() {
@@ -219,10 +250,6 @@ public class Drivetrain extends SubsystemBase {
     driveSim.setInputs(withSimFriction(leftOutput), withSimFriction(rightOutput));
     driveSim.update(0.02);
 
-    leftEncoderSim.setDistance(Units.metersToInches(driveSim.getLeftPositionMeters()));
-    rightEncoderSim.setDistance(Units.metersToInches(driveSim.getRightPositionMeters()));
-    leftEncoderSim.setRate(Units.metersToInches(driveSim.getLeftVelocityMetersPerSecond()));
-    rightEncoderSim.setRate(Units.metersToInches(driveSim.getRightVelocityMetersPerSecond()));
     pigeon.getSimState().setSupplyVoltage(RobotController.getBatteryVoltage());
     double simYaw = driveSim.getHeading().getDegrees();
     pigeon.getSimState().setRawYaw(DriveConstants.GYRO_REVERSED ? -simYaw : simYaw);
