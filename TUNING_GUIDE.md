@@ -120,8 +120,11 @@ Controls: **left stick up/down** = forward/back, **right stick left/right** = tu
 | Right encoder | Push forward, watch `Drive/Right inches` | Goes **up** | `RIGHT_ENCODER_REVERSED` |
 | Gyro | Disable robot. Turn it by hand to the **left** (counter‑clockwise from above). Watch `Drive/Heading deg` | Goes **up** | `GYRO_REVERSED` |
 
-If an encoder reads **0 the whole time**, it's probably unplugged or in the wrong DIO port
-(`LEFT_ENCODER_PORTS` / `RIGHT_ENCODER_PORTS`). Check the wiring with a lead.
+If an encoder reads **0 the whole time**, it's probably unplugged or plugged into a different
+SPARK MAX than the code expects. Each encoder goes into the data port on top of a SPARK MAX:
+the left encoder into the SPARK MAX set by `LEFT_ENCODER_MOTOR_ID` (left leader, CAN ID 1)
+and the right encoder into the one set by `RIGHT_ENCODER_MOTOR_ID` (right follower, CAN ID 4).
+Check the wiring with a lead.
 
 ✅ Commit: `git commit -am "Direction checks: flipped X"` (or "all directions already correct").
 
