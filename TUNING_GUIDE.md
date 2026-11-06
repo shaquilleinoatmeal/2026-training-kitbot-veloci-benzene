@@ -166,7 +166,10 @@ Don't touch `CURRENT_LIMIT_AMPS` or `VOLTAGE_COMPENSATION_VOLTS` without a lead.
 
 ---
 
-## 5. Auton tuning ("Drive 10 ft")
+## 5. Auton tuning ("Profiled 10 ft")
+
+> **Tip:** Start with the simpler auton in section 5.5 below. It is the default in the chooser.
+
 
 ### How the auton works (the short version)
 
@@ -188,7 +191,7 @@ Auton ends when it's within `Auto tolerance inches` of 120 and nearly stopped, o
 ### How to run a test
 
 1. Robot on the floor, tape mark at the starting line and at 10 ft.
-2. Disabled → click **Reset sensors** → pick **Drive 10 ft** in the `Auto` chooser.
+2. Disabled → click **Reset sensors** → pick **Profiled 10 ft (old)** in the `Auto` chooser.
 3. Driver Station → **Autonomous** → Enable. Hand on space bar.
 4. After it stops, write down:
    - Where it actually stopped (tape measure from start, inches)
@@ -246,6 +249,48 @@ In Elastic/Shuffleboard, make a line graph with **`Auto/Setpoint inches`** and
 ✅ Commit after each good step.
 
 ---
+
+
+## 5.5 Simple auton ("Simple 10 ft")
+
+This is the **default** auton. It is much simpler than the profiled one:
+
+1. Drive forward at `Simple auto speed`.
+2. When it gets within `Simple auto slow zone inches` of the end, drop to `Simple auto slow speed`.
+3. Stop the moment the **average of the left and right encoders** reaches 120 inches.
+
+While driving, it keeps itself straight. If one side gets ahead of the other, it slows that side
+down and speeds the other side up. There are two versions in the `Auto` chooser so you can compare:
+
+| Chooser option | How it notices it is drifting | Good at | Bad at |
+|---|---|---|---|
+| **Simple 10 ft (Pigeon straight)** | The Pigeon heading changed | Not fooled by a slipping wheel | Needs the Pigeon working |
+| **Simple 10 ft (encoder straight)** | Left encoder ≠ right encoder | Works if the Pigeon breaks | A slipping wheel fools it |
+
+Try both. Most teams end up using the Pigeon version.
+
+**Dashboard numbers** (`Tuning/...`):
+
+| Name | Default | What it does |
+|---|---|---|
+| `Simple auto speed` | 0.4 | Cruise power (0–1) |
+| `Simple auto slow speed` | 0.2 | Power near the end |
+| `Simple auto slow zone inches` | 18 | How far from the end it slows down |
+| `Simple auto heading kP` | 0.02 | Pigeon version: steer this much per degree off |
+| `Simple auto encoder kP` | 0.05 | Encoder version: steer this much per inch one side is ahead |
+
+**Watch** `Auto/Simple heading error deg`, `Auto/Simple encoder error inches` and
+`Auto/Simple correction` while it runs.
+
+- Stops **short** of the tape but `Drive/Average inches` says 120 → encoder calibration is off (section on calibration).
+- Stops **past** the tape → it is coasting. Lower `Simple auto slow speed` or make the slow zone bigger.
+- Drifts to one side → raise that version's kP a little (×1.5).
+- Wiggles left/right → kP is too big, lower it.
+- Robot **spins or veers hard** the moment it starts → the correction sign is backwards
+  (check `GYRO_REVERSED` / `RIGHT_ENCODER_REVERSED`) — disable and ask a lead.
+
+Copy good numbers into `DriveConstants.java` (`SIMPLE_AUTO_SPEED`, `SIMPLE_AUTO_SLOW_SPEED`,
+`SIMPLE_AUTO_SLOW_ZONE_INCHES`, `HEADING_KP`, `ENCODER_STRAIGHT_KP`).
 
 ## 6. Saving your values (don't skip this!)
 
