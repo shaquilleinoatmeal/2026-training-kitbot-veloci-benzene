@@ -17,7 +17,7 @@ import frc.robot.commands.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
-  private final Drivetrain drivetrain = new Drivetrain();
+  private final Drivetrain drivetrain;
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private final SlewRateLimiter forwardLimiter =
@@ -30,6 +30,12 @@ public class RobotContainer {
       new TunableNumber("Teleop max output", DriveConstants.TELEOP_MAX_OUTPUT);
 
   public RobotContainer() {
+    this(new Drivetrain());
+  }
+
+  // Lets tests hand in the shared simulated drivetrain (motor IDs can only be claimed once).
+  RobotContainer(Drivetrain drivetrain) {
+    this.drivetrain = drivetrain;
     configureBindings();
     configureAutos();
   }
@@ -82,7 +88,8 @@ public class RobotContainer {
     autoChooser.setDefaultOption(
         "Drive 10 ft",
         // Positive = forward, negative = backward.
-        new DriveDistance(drivetrain, DriveConstants.AUTO_DISTANCE_INCHES).withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
+        new DriveDistance(drivetrain, DriveConstants.AUTO_DISTANCE_INCHES)
+            .withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
     autoChooser.addOption(
         "Simple 10 ft (Pigeon straight)",
         new SimpleDriveStraight(drivetrain, DriveConstants.AUTO_DISTANCE_INCHES, StraightMode.PIGEON)
