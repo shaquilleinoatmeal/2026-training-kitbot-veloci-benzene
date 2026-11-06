@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,8 +22,7 @@ class DriveDistanceSimTest {
 
   @BeforeAll
   static void setUpAll() {
-    assertTrue(HAL.initialize(500, 0));
-    drivetrain = new Drivetrain();
+    drivetrain = SimDrivetrain.get();
   }
 
   @BeforeEach

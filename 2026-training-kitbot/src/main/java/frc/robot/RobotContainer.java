@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveDistance;
+import frc.robot.commands.SimpleDriveStraight;
+import frc.robot.commands.SimpleDriveStraight.StraightMode;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
@@ -69,6 +71,8 @@ public class RobotContainer {
         .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
+  // Pick the auton on the dashboard under "Auto" BEFORE enabling.
+  // To add a new auton: write the command, then add one more addOption(...) line here.
   private void configureAutos() {
     autoChooser.setDefaultOption(
         "Drive 10 ft",
