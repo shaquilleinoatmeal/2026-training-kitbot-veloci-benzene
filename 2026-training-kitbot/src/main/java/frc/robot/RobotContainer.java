@@ -72,7 +72,8 @@ public class RobotContainer {
   private void configureAutos() {
     autoChooser.setDefaultOption(
         "Drive 10 ft",
-        new DriveDistance(drivetrain, 120.0).withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
+        // Negative = drive the other way. Flip the sign if the auton heads the wrong direction.
+        new DriveDistance(drivetrain, -120.0).withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
     autoChooser.addOption("Do nothing", Commands.none());
     SmartDashboard.putData("Auto", autoChooser);
   }
