@@ -50,6 +50,16 @@ class DriveDistanceSimTest {
   }
 
   @Test
+  void drivesTenFeetBackwardWithNegativeTarget() {
+    double startInches = drivetrain.getAverageInches();
+    double elapsed = runDriveDistance(-120.0);
+
+    assertEquals(-120.0, drivetrain.getAverageInches() - startInches, 2.0);
+    assertEquals(0.0, drivetrain.getHeadingDegrees(), 2.0);
+    assertTrue(elapsed < 4.0, "reverse auton took " + elapsed + " s");
+  }
+
+  @Test
   void dashboardMaxVelocityAppliesOnNextRun() {
     String key = "Tuning/Auto max velocity in per sec";
     SmartDashboard.putNumber(key, 25.0);
@@ -65,7 +75,11 @@ class DriveDistanceSimTest {
   }
 
   private static double runDriveDistance() {
-    Command auto = new DriveDistance(drivetrain, 120.0);
+    return runDriveDistance(120.0);
+  }
+
+  private static double runDriveDistance(double targetInches) {
+    Command auto = new DriveDistance(drivetrain, targetInches);
     CommandScheduler.getInstance().schedule(auto);
 
     double elapsed = 0.0;

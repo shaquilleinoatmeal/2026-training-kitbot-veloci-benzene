@@ -40,7 +40,7 @@ public class RobotContainer {
             () ->
                 drivetrain.arcadeDrive(
                     forwardLimiter.calculate(
-                        MathUtil.applyDeadband(-driverController.getLeftY(), DriveConstants.DEADBAND)),
+                        MathUtil.applyDeadband(driverController.getLeftY(), DriveConstants.DEADBAND)),
                     rotationLimiter.calculate(
                         turnSign * MathUtil.applyDeadband(-driverController.getRightX(), DriveConstants.DEADBAND)),
                     maxOutputLimiter.calculate(
@@ -75,19 +75,9 @@ public class RobotContainer {
   // To add a new auton: write the command, then add one more addOption(...) line here.
   private void configureAutos() {
     autoChooser.setDefaultOption(
-        "Simple 10 ft (Pigeon straight)",
-        new SimpleDriveStraight(
-                drivetrain, DriveConstants.AUTO_DISTANCE_INCHES, StraightMode.PIGEON)
-            .withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
-    autoChooser.addOption(
-        "Simple 10 ft (encoder straight)",
-        new SimpleDriveStraight(
-                drivetrain, DriveConstants.AUTO_DISTANCE_INCHES, StraightMode.ENCODERS)
-            .withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
-    autoChooser.addOption(
-        "Profiled 10 ft (old)",
-        new DriveDistance(drivetrain, DriveConstants.AUTO_DISTANCE_INCHES)
-            .withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
+        "Drive 10 ft",
+        // Negative = drive the other way. Flip the sign if the auton heads the wrong direction.
+        new DriveDistance(drivetrain, -120.0).withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
     autoChooser.addOption("Do nothing", Commands.none());
     SmartDashboard.putData("Auto", autoChooser);
   }
