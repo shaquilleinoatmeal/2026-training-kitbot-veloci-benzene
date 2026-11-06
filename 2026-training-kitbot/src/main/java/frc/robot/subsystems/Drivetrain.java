@@ -41,17 +41,21 @@ public class Drivetrain extends SubsystemBase {
   private final SparkMax rightFollower =
       new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushed);
 
+  // -1 when the drivetrain is wired backwards (see DriveConstants.DRIVE_REVERSED). Applied to the
+  // motor outputs and the encoder readings, so the rest of the code always uses positive = forward.
+  private static final double DRIVE_SIGN = DriveConstants.DRIVE_REVERSED ? -1.0 : 1.0;
+
   private double leftOutput;
   private double rightOutput;
   private final DifferentialDrive drive =
       new DifferentialDrive(
           output -> {
             leftOutput = output;
-            leftLeader.set(output);
+            leftLeader.set(DRIVE_SIGN * output);
           },
           output -> {
             rightOutput = output;
-            rightLeader.set(output);
+            rightLeader.set(DRIVE_SIGN * output);
           });
 
   private final Pigeon2 pigeon = new Pigeon2(DriveConstants.PIGEON_ID);
@@ -186,28 +190,28 @@ public class Drivetrain extends SubsystemBase {
     if (driveSim != null) {
       return Units.metersToInches(driveSim.getLeftPositionMeters()) - simLeftOffsetInches;
     }
-    return leftEncoder.getPosition();
+    return DRIVE_SIGN * leftEncoder.getPosition();
   }
 
   public double getRightInches() {
     if (driveSim != null) {
       return Units.metersToInches(driveSim.getRightPositionMeters()) - simRightOffsetInches;
     }
-    return rightEncoder.getPosition();
+    return DRIVE_SIGN * rightEncoder.getPosition();
   }
 
   public double getLeftInchesPerSecond() {
     if (driveSim != null) {
       return Units.metersToInches(driveSim.getLeftVelocityMetersPerSecond());
     }
-    return leftEncoder.getVelocity();
+    return DRIVE_SIGN * leftEncoder.getVelocity();
   }
 
   public double getRightInchesPerSecond() {
     if (driveSim != null) {
       return Units.metersToInches(driveSim.getRightVelocityMetersPerSecond());
     }
-    return rightEncoder.getVelocity();
+    return DRIVE_SIGN * rightEncoder.getVelocity();
   }
 
   public double getAverageInches() {

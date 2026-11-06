@@ -17,7 +17,11 @@ public final class DriveConstants {
   public static final double TELEOP_MAX_OUTPUT = 0.45;//0.6
 
   public static final double DEADBAND = 0.08;
-  public static final boolean INVERT_TURN = true;
+
+  // true = the whole drivetrain is wired backwards (positive motor output drives the robot
+  // backward). Drivetrain flips motor outputs AND encoder readings, so everywhere else in the code
+  // positive = forward, positive rotation = turn left (CCW), as WPILib expects.
+  public static final boolean DRIVE_REVERSED = true;
 
   // Each encoder plugs into the data port on top of a SPARK MAX (not the roboRIO DIO).
   // Set these to the CAN ID of the SPARK MAX that each encoder cable goes into.
@@ -25,7 +29,7 @@ public final class DriveConstants {
   public static final int RIGHT_ENCODER_MOTOR_ID = RIGHT_FOLLOWER_ID;
   public static final boolean LEFT_ENCODER_REVERSED = false;
   public static final boolean RIGHT_ENCODER_REVERSED = true;
-  public static final boolean GYRO_REVERSED = true;
+  public static final boolean GYRO_REVERSED = false;
 
   public static final double ENCODER_CYCLES_PER_REV = 2048;
   public static final double ENCODER_TURNS_PER_WHEEL_TURN = 1.0;

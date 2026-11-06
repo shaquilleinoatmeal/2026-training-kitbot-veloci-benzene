@@ -34,15 +34,17 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    double turnSign = DriveConstants.INVERT_TURN ? -1.0 : 1.0;
+    // Standard WPILib signs: stick Y is negative when pushed forward, and arcadeDrive turns left
+    // (CCW) for positive rotation, so both sticks are negated. Motor direction is handled in
+    // Drivetrain (DriveConstants.DRIVE_REVERSED), not here.
     drivetrain.setDefaultCommand(
         Commands.run(
             () ->
                 drivetrain.arcadeDrive(
                     forwardLimiter.calculate(
-                        MathUtil.applyDeadband(driverController.getLeftY(), DriveConstants.DEADBAND)),
+                        MathUtil.applyDeadband(-driverController.getLeftY(), DriveConstants.DEADBAND)),
                     rotationLimiter.calculate(
-                        turnSign * MathUtil.applyDeadband(-driverController.getRightX(), DriveConstants.DEADBAND)),
+                        MathUtil.applyDeadband(-driverController.getRightX(), DriveConstants.DEADBAND)),
                     maxOutputLimiter.calculate(
                         driverController.getHID().getRightBumperButton()
                             ? 1.0
@@ -76,8 +78,8 @@ public class RobotContainer {
   private void configureAutos() {
     autoChooser.setDefaultOption(
         "Drive 10 ft",
-        // Negative = drive the other way. Flip the sign if the auton heads the wrong direction.
-        new DriveDistance(drivetrain, -120.0).withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
+        // Positive = forward, negative = backward.
+        new DriveDistance(drivetrain, DriveConstants.AUTO_DISTANCE_INCHES).withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
     autoChooser.addOption("Do nothing", Commands.none());
     SmartDashboard.putData("Auto", autoChooser);
   }

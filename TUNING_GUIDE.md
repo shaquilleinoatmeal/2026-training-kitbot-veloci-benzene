@@ -113,9 +113,9 @@ Controls: **left stick up/down** = forward/back, **right stick left/right** = tu
 
 | Check | How | Expected | If wrong, change in `DriveConstants` |
 | --- | --- | --- | --- |
-| Right side spins the right way | Push left stick forward | Both sides' wheels spin "forward" | `RIGHT_SIDE_INVERTED` (flip true/false). If the **left** side is backwards, ask a lead. |
+| Robot drives the right way | Push left stick forward | Both sides' wheels spin "forward" | Only **one** side backwards → `RIGHT_SIDE_INVERTED`. **Both** sides backwards → `DRIVE_REVERSED`. |
 | Motors on the same side don't fight | Push forward, listen/feel | Smooth, no grinding or buzzing, wheels spin freely | `FOLLOWER_OPPOSES_LEADER` — **disable right away** if you hear grinding |
-| Turning goes the right way | Push right stick right | Robot would turn right (left wheels forward, right wheels back) | `INVERT_TURN` |
+| Turning goes the right way | Push right stick right | Robot would turn right (left wheels forward, right wheels back) | Should be fixed by the row above. If forward is right but turning is backwards, the left and right motor IDs are swapped. |
 | Left encoder | Push forward, watch `Drive/Left inches` | Goes **up** | `LEFT_ENCODER_REVERSED` |
 | Right encoder | Push forward, watch `Drive/Right inches` | Goes **up** | `RIGHT_ENCODER_REVERSED` |
 | Gyro | Disable robot. Turn it by hand to the **left** (counter‑clockwise from above). Watch `Drive/Heading deg` | Goes **up** | `GYRO_REVERSED` |
