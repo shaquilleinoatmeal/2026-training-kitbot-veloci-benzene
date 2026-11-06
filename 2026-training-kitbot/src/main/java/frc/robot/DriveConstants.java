@@ -29,8 +29,8 @@ public final class DriveConstants {
 
   public static final double ENCODER_CYCLES_PER_REV = 2048;
   public static final double ENCODER_TURNS_PER_WHEEL_TURN = 1.0;
-  public static final double WHEEL_DIAMETER_INCHES = 6.0;
-  public static final double CALIBRATION_FACTOR = 1.0;
+  public static final double WHEEL_DIAMETER_INCHES = 5.75;
+  public static final double CALIBRATION_FACTOR = 11;
 
   // The SPARK MAX counts every edge of both A and B channels: 4 counts per cycle.
   public static final int ENCODER_COUNTS_PER_REV = (int) (ENCODER_CYCLES_PER_REV * 4);
