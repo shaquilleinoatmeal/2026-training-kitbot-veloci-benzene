@@ -162,6 +162,16 @@ These only affect driving with the controller. Get a driver's opinion.
 | Jerky / tips when starting or stopping | `TELEOP_RAMP_SECONDS` | `DriveConstants` | Bigger = smoother but laggier. Try 0.1 – 0.3 |
 | Robot creeps when sticks are let go | `DEADBAND` | `DriveConstants` | Raise a little (0.08 → 0.1) |
 | Small stick moves do nothing | `DEADBAND` | `DriveConstants` | Lower a little (0.08 → 0.05) |
+| Drifts to one side when only pushing the left stick | `Tuning/Teleop heading kP` | Dashboard (live) | Raise a little (0.03 → 0.05) |
+| Wobbles side to side when only pushing the left stick | `Tuning/Teleop heading kP` | Dashboard (live) | Lower it (0.03 → 0.02) |
+| Snaps back a bit right after you stop turning | `HEADING_HOLD_SETTLE_SECONDS` | `DriveConstants` | Raise a little (0.25 → 0.4) |
+
+**Heading hold:** when the driver uses only the left stick (straight forward or straight back),
+the robot uses the Pigeon to stay pointed the same way, and it fixes itself if one side pulls ahead
+or it gets bumped. Touching the right stick turns it off until you let go again. Watch
+`Teleop/Heading error deg` while driving straight — it should stay near 0. If the robot **spins
+away** the moment you drive straight, the gyro is backwards: disable and recheck `GYRO_REVERSED`
+(Step 2). Turn heading hold off completely with the `Tuning/Teleop heading hold` checkbox.
 
 Don't touch `CURRENT_LIMIT_AMPS` or `VOLTAGE_COMPENSATION_VOLTS` without a lead.
 
@@ -355,6 +365,7 @@ best measured with WPILib's **SysId** tool instead of guessed. **Do this with a 
 | Robot doesn't move at all in auton | Wrong auton selected, or `Do nothing` chosen | Pick **Drive 10 ft** in the `Auto` chooser |
 | Auton ends early / doesn't move | Forgot to Reset sensors, or encoders backwards | Reset sensors; recheck Step 2 |
 | Spins in circles in auton | Gyro direction wrong | `GYRO_REVERSED` (Step 2) |
+| Teleop: robot turns away by itself when driving straight | Gyro direction wrong | `GYRO_REVERSED` (Step 2); uncheck `Tuning/Teleop heading hold` to drive meanwhile |
 | Runs away and never stops | An encoder is backwards or unplugged | Disable! Recheck Step 2 |
 | Always stops a few inches short | kP too low or kS too low | Raise kP (Step 5b) |
 | Robot stops where it thinks 120 is, but tape says otherwise | Calibration off or wheels slipping | Redo Step 3; lower max accel |

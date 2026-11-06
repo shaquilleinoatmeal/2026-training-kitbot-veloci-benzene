@@ -78,19 +78,21 @@ public class SimpleDriveStraight extends Command {
     double leftTraveled = drivetrain.getLeftInches() - startLeftInches;
     double rightTraveled = drivetrain.getRightInches() - startRightInches;
     double averageTraveled = (leftTraveled + rightTraveled) / 2.0;
-    double inchesLeftToGo = targetInches - averageTraveled;
+    // direction is +1 driving forward, -1 driving backward (negative target).
+    double direction = Math.signum(targetInches);
+    double inchesLeftToGo = Math.abs(targetInches) - direction * averageTraveled;
     double headingError = drivetrain.getHeadingDegrees() - startHeadingDegrees;
     double encoderError = rightTraveled - leftTraveled;
 
     // Drive at full auto speed, then slow down near the end so we don't coast past the line.
-    double forward = inchesLeftToGo < slowZoneInches ? slowSpeed : speed;
+    double forward = direction * (inchesLeftToGo < slowZoneInches ? slowSpeed : speed);
 
     // Both errors are POSITIVE when the right side is ahead (robot turning left).
     // Positive correction speeds up the left side and slows the right side.
     double correction =
         mode == StraightMode.PIGEON ? headingKp * headingError : encoderKp * encoderError;
     // Never let the steering fix be bigger than the forward speed (no spinning in place).
-    correction = MathUtil.clamp(correction, -forward, forward);
+    correction = MathUtil.clamp(correction, -Math.abs(forward), Math.abs(forward));
 
     drivetrain.tankDrive(forward + correction, forward - correction);
 
@@ -108,7 +110,7 @@ public class SimpleDriveStraight extends Command {
         ((drivetrain.getLeftInches() - startLeftInches)
                 + (drivetrain.getRightInches() - startRightInches))
             / 2.0;
-    return averageTraveled >= targetInches;
+    return Math.signum(targetInches) * averageTraveled >= Math.abs(targetInches);
   }
 
   @Override

@@ -18,6 +18,15 @@ public final class DriveConstants {
 
   public static final double DEADBAND = 0.08;
 
+  // Teleop heading hold (TeleopDrive): keeps the robot straight while only the left stick is used.
+  // Correction added to the turn, per degree off. Raise if it still drifts, lower if it wobbles.
+  public static final double TELEOP_HEADING_KP = 0.03;
+  // Most turn the correction may ever add (so it can never out-steer the driver much).
+  public static final double TELEOP_MAX_CORRECTION = 0.25;
+  // After letting go of the turn stick, wait this long for the robot to stop rotating before
+  // locking the heading in (otherwise it snaps back to where it was mid-turn).
+  public static final double HEADING_HOLD_SETTLE_SECONDS = 0.25;
+
   // true = the whole drivetrain is wired backwards (positive motor output drives the robot
   // backward). Drivetrain flips motor outputs AND encoder readings, so everywhere else in the code
   // positive = forward, positive rotation = turn left (CCW), as WPILib expects.

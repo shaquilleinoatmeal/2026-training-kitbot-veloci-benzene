@@ -92,6 +92,7 @@ public class Drivetrain extends SubsystemBase {
   private DifferentialDrivetrainSim driveSim;
   private double simLeftOffsetInches;
   private double simRightOffsetInches;
+  private double simHeadingOffsetDegrees;
 
   public Drivetrain() {
     configure(leftLeader, baseConfig());
@@ -155,8 +156,13 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void arcadeDrive(double forward, double rotation, double maxOutput) {
+    arcadeDrive(forward, rotation, maxOutput, true);
+  }
+
+  public void arcadeDrive(
+      double forward, double rotation, double maxOutput, boolean squareInputs) {
     drive.setMaxOutput(maxOutput);
-    drive.arcadeDrive(forward, rotation);
+    drive.arcadeDrive(forward, rotation, squareInputs);
   }
 
   public void tankDrive(double left, double right) {
@@ -218,7 +224,12 @@ public class Drivetrain extends SubsystemBase {
     return (getLeftInches() + getRightInches()) / 2.0;
   }
 
+  // In simulation the Pigeon's yaw arrives over simulated CAN on a real-time clock, so it lags or
+  // goes stale in fast unit tests. Read the simulated drivetrain instead, like the encoders do.
   public double getHeadingDegrees() {
+    if (driveSim != null) {
+      return driveSim.getHeading().getDegrees() - simHeadingOffsetDegrees;
+    }
     double yaw = pigeon.getYaw().getValueAsDouble();
     return DriveConstants.GYRO_REVERSED ? -yaw : yaw;
   }
@@ -230,6 +241,9 @@ public class Drivetrain extends SubsystemBase {
   public void resetSensors() {
     resetEncoders();
     pigeon.setYaw(0);
+    if (driveSim != null) {
+      simHeadingOffsetDegrees = driveSim.getHeading().getDegrees();
+    }
     odometry.resetPosition(Rotation2d.kZero, 0.0, 0.0, Pose2d.kZero);
   }
 
