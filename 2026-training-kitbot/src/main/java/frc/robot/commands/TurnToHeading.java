@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.DriveConstants;
@@ -49,6 +50,10 @@ public class TurnToHeading extends Command {
   private double max;
   private double tolerance;
   private int loopsInTolerance;
+  // For tuning: how long the turn took and how far it swung PAST the target.
+  private final Timer timer = new Timer();
+  private double startErrorSign;
+  private double overshoot;
 
   public TurnToHeading(Drivetrain drivetrain, String name, DoubleSupplier targetHeadingDegrees) {
     this.drivetrain = drivetrain;
@@ -65,7 +70,11 @@ public class TurnToHeading extends Command {
     max = maxOutput.get();
     tolerance = toleranceDegrees.get();
     loopsInTolerance = 0;
+    startErrorSign = Math.signum(error());
+    overshoot = 0.0;
+    timer.restart();
     SmartDashboard.putString("Auto/Step", name);
+    SmartDashboard.putString("Turn/Result", "turning...");
   }
 
   /** Degrees still to turn. Positive = turn left (CCW), negative = turn right. */
@@ -88,6 +97,8 @@ public class TurnToHeading extends Command {
     }
     // Positive turn = CCW (left): left side backward, right side forward.
     drivetrain.tankDrive(-turn, turn);
+    // Error flips sign once the robot has gone past the target.
+    overshoot = Math.max(overshoot, -startErrorSign * error);
     SmartDashboard.putNumber("Auto/Turn error deg", error);
   }
 
@@ -99,5 +110,16 @@ public class TurnToHeading extends Command {
   @Override
   public void end(boolean interrupted) {
     drivetrain.stop();
+    double seconds = timer.get();
+    SmartDashboard.putNumber("Turn/Time sec", seconds);
+    SmartDashboard.putNumber("Turn/Overshoot deg", overshoot);
+    SmartDashboard.putNumber("Turn/Final error deg", error());
+    SmartDashboard.putString(
+        "Turn/Result",
+        interrupted
+            ? String.format("STOPPED after %.2f s, %.1f deg off", seconds, error())
+            : String.format(
+                "done in %.2f s, overshoot %.1f deg (kP %.3f, min %.2f, max %.2f)",
+                seconds, overshoot, kp, min, max));
   }
 }

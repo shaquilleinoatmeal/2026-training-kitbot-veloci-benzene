@@ -15,6 +15,7 @@ import frc.robot.commands.KvSteadyTest;
 import frc.robot.commands.SimpleDriveStraight;
 import frc.robot.commands.SimpleDriveStraight.StraightMode;
 import frc.robot.commands.TeleopDrive;
+import frc.robot.commands.TurnToHeading;
 import frc.robot.commands.TwoTurnRouteAuto;
 import frc.robot.subsystems.Drivetrain;
 
@@ -74,6 +75,22 @@ public class RobotContainer {
     driverController.b().and(testMode).whileTrue(new KsRampTest(drivetrain, false));
     driverController.x().and(testMode).whileTrue(new KvSteadyTest(drivetrain, true));
     driverController.y().and(testMode).whileTrue(new KvSteadyTest(drivetrain, false));
+
+    // Turn tuning — Test mode, HOLD the D-pad until it finishes. Uses "Tuning/Turn kP",
+    // "Turn min output", "Turn max output". Results under "Turn/" (time, overshoot, final error).
+    //   D-pad right = turn 90 right, D-pad left = turn 90 left (from wherever it's pointing now)
+    driverController
+        .povRight()
+        .and(testMode)
+        .whileTrue(
+            new TurnToHeading(
+                drivetrain, "Test: turn 90 right", () -> drivetrain.getHeadingDegrees() - 90.0));
+    driverController
+        .povLeft()
+        .and(testMode)
+        .whileTrue(
+            new TurnToHeading(
+                drivetrain, "Test: turn 90 left", () -> drivetrain.getHeadingDegrees() + 90.0));
   }
 
   // Pick the auton on the dashboard under "Auto" BEFORE enabling.
