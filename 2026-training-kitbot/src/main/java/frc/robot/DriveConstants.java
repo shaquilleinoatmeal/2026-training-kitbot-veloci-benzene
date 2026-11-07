@@ -76,4 +76,20 @@ public final class DriveConstants {
   // Kept under the 10 s auto period so the robot always stops on its own.
   public static final double SIMPLE_AUTO_TIMEOUT_SECONDS = 9.5;
   public static final double ENCODER_STRAIGHT_KP = 0.05;
+
+  // Turning in place (TurnToHeading). Output = TURN_KP * degrees left to turn, kept between min
+  // and max. A tank drive scrubs its wheels when turning, so min output is higher than kS.
+  public static final double TURN_KP = 0.01;
+  public static final double TURN_MIN_OUTPUT = 0.12;
+  public static final double TURN_MAX_OUTPUT = 0.6;
+  public static final double TURN_TOLERANCE_DEGREES = 2.0;
+
+  // Two-turn route auton (TwoTurnRouteAuto).
+  // Fast enough to finish the whole route inside the 10 s auto period (about 9.5 s in sim).
+  public static final double ROUTE_FAST_SPEED = 1.0;
+  public static final double ROUTE_SLOW_SPEED = 0.6;
+  // Each leg crawls for its last ROUTE_CRAWL_ZONE_INCHES so it stops on the line instead of
+  // coasting past (the last back-up crawls for 2 ft). Must stay well above kS / 12.
+  public static final double ROUTE_CRAWL_SPEED = 0.2;
+  public static final double ROUTE_CRAWL_ZONE_INCHES = 12.0;
 }

@@ -15,6 +15,7 @@ import frc.robot.commands.KvSteadyTest;
 import frc.robot.commands.SimpleDriveStraight;
 import frc.robot.commands.SimpleDriveStraight.StraightMode;
 import frc.robot.commands.TeleopDrive;
+import frc.robot.commands.TwoTurnRouteAuto;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
@@ -92,6 +93,9 @@ public class RobotContainer {
         new SimpleDriveStraight(
                 drivetrain, DriveConstants.AUTO_DISTANCE_INCHES, StraightMode.ENCODERS)
             .withTimeout(DriveConstants.SIMPLE_AUTO_TIMEOUT_SECONDS));
+    autoChooser.addOption(
+        "Two-turn route (20 ft, right, 10 ft, right, 20 ft, back 10 ft)",
+        new TwoTurnRouteAuto(drivetrain));
     autoChooser.addOption("Do nothing", Commands.none());
     SmartDashboard.putData("Auto", autoChooser);
   }

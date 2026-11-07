@@ -186,6 +186,11 @@ public class Drivetrain extends SubsystemBase {
     return DRIVE_SIGN * rightEncoder.getVelocity();
   }
 
+  /** Where the robot thinks it is on the field (from encoders + Pigeon), in meters. */
+  public Pose2d getPose() {
+    return odometry.getPoseMeters();
+  }
+
   public double getAverageInches() {
     return (getLeftInches() + getRightInches()) / 2.0;
   }
