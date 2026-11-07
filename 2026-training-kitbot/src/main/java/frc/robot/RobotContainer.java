@@ -2,12 +2,16 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveDistance;
+import frc.robot.commands.KsRampTest;
+import frc.robot.commands.KvSteadyTest;
 import frc.robot.commands.SimpleDriveStraight;
 import frc.robot.commands.SimpleDriveStraight.StraightMode;
 import frc.robot.commands.TeleopDrive;
@@ -59,6 +63,16 @@ public class RobotContainer {
 
     SmartDashboard.putData(
         "Reset sensors", Commands.runOnce(drivetrain::resetSensors).ignoringDisable(true));
+
+    // Feedforward tuning — only works in Test mode on the Driver Station. HOLD the button.
+    // Results show up on the dashboard under "Test/". Copy them into DriveConstants.
+    //   A = kS forward, B = kS backward  (slowly ramps voltage until the robot starts moving)
+    //   X = kV forward, Y = kV backward  (drives at "Tuning/kV test volts", needs room!)
+    Trigger testMode = new Trigger(DriverStation::isTest);
+    driverController.a().and(testMode).whileTrue(new KsRampTest(drivetrain, true));
+    driverController.b().and(testMode).whileTrue(new KsRampTest(drivetrain, false));
+    driverController.x().and(testMode).whileTrue(new KvSteadyTest(drivetrain, true));
+    driverController.y().and(testMode).whileTrue(new KvSteadyTest(drivetrain, false));
   }
 
   // Pick the auton on the dashboard under "Auto" BEFORE enabling.
