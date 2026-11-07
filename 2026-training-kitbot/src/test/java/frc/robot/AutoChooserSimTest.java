@@ -70,7 +70,7 @@ class AutoChooserSimTest {
     CommandScheduler.getInstance().schedule(auto);
 
     double elapsed = 0.0;
-    while (auto.isScheduled() && elapsed < DriveConstants.AUTO_TIMEOUT_SECONDS + 0.5) {
+    while (auto.isScheduled() && elapsed < Math.max(DriveConstants.AUTO_TIMEOUT_SECONDS, DriveConstants.SIMPLE_AUTO_TIMEOUT_SECONDS) + 0.5) {
       step(1);
       elapsed += DT;
     }

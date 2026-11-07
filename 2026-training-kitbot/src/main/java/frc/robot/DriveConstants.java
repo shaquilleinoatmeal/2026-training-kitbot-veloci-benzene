@@ -67,8 +67,13 @@ public final class DriveConstants {
 
   // Simple "drive until the encoders say 10 ft" auton (SimpleDriveStraight).
   public static final double AUTO_DISTANCE_INCHES = 120.0;
-  public static final double SIMPLE_AUTO_SPEED = 0.4;
-  public static final double SIMPLE_AUTO_SLOW_SPEED = 0.2;
-  public static final double SIMPLE_AUTO_SLOW_ZONE_INCHES = 18.0;
+  // Slow on purpose: auto is 10 s and slower = less wheel slip and less coasting past the line.
+  // 0.25 is about 3 V (~2.5 ft/s); finishes 10 ft in about 6 s.
+  public static final double SIMPLE_AUTO_SPEED = 0.25;
+  // Must stay well above kS (KS_VOLTS / 12 is about 0.06) or the robot stalls before the line.
+  public static final double SIMPLE_AUTO_SLOW_SPEED = 0.13;
+  public static final double SIMPLE_AUTO_SLOW_ZONE_INCHES = 24.0;
+  // Kept under the 10 s auto period so the robot always stops on its own.
+  public static final double SIMPLE_AUTO_TIMEOUT_SECONDS = 9.5;
   public static final double ENCODER_STRAIGHT_KP = 0.05;
 }

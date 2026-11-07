@@ -31,6 +31,7 @@ public class KvSteadyTest extends Command {
   private final double direction;
   private final Timer timer = new Timer();
   private double volts;
+  private double ks;
   private double speedSum;
   private int samples;
 
@@ -46,6 +47,10 @@ public class KvSteadyTest extends Command {
   @Override
   public void initialize() {
     volts = Math.abs(testVolts.get());
+    ks = ksVolts.get();
+    // Echo back what the robot actually read, so you can confirm your dashboard edits arrived.
+    SmartDashboard.putNumber("Test/kV robot is using volts", volts);
+    SmartDashboard.putNumber("Test/kV robot is using kS", ks);
     speedSum = 0.0;
     samples = 0;
     timer.restart();
@@ -71,12 +76,12 @@ public class KvSteadyTest extends Command {
       SmartDashboard.putString("Test/kV status", "not moving — raise kV test volts");
       return;
     }
-    double kV = (volts - ksVolts.get()) / averageSpeed;
+    double kV = (volts - ks) / averageSpeed;
     SmartDashboard.putNumber("Test/kV", kV);
     SmartDashboard.putNumber("Test/kV average speed", averageSpeed);
     SmartDashboard.putString(
         "Test/kV status",
-        String.format("measuring at %.1f V (%.1f s of data)", volts, samples * 0.02));
+        String.format("measuring at %.2f V, kS %.3f (%.1f s of data)", volts, ks, samples * 0.02));
   }
 
   @Override

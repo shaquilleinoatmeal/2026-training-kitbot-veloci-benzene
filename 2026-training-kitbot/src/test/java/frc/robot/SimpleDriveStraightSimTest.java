@@ -49,7 +49,7 @@ class SimpleDriveStraightSimTest {
     CommandScheduler.getInstance().schedule(auto);
 
     double elapsed = 0.0;
-    while (auto.isScheduled() && elapsed < DriveConstants.AUTO_TIMEOUT_SECONDS) {
+    while (auto.isScheduled() && elapsed < DriveConstants.SIMPLE_AUTO_TIMEOUT_SECONDS) {
       CommandScheduler.getInstance().run();
       SimHooks.stepTiming(DT);
       elapsed += DT;

@@ -86,12 +86,12 @@ public class RobotContainer {
     autoChooser.addOption(
         "Simple 10 ft (Pigeon straight)",
         new SimpleDriveStraight(drivetrain, DriveConstants.AUTO_DISTANCE_INCHES, StraightMode.PIGEON)
-            .withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
+            .withTimeout(DriveConstants.SIMPLE_AUTO_TIMEOUT_SECONDS));
     autoChooser.addOption(
         "Simple 10 ft (encoder straight)",
         new SimpleDriveStraight(
                 drivetrain, DriveConstants.AUTO_DISTANCE_INCHES, StraightMode.ENCODERS)
-            .withTimeout(DriveConstants.AUTO_TIMEOUT_SECONDS));
+            .withTimeout(DriveConstants.SIMPLE_AUTO_TIMEOUT_SECONDS));
     autoChooser.addOption("Do nothing", Commands.none());
     SmartDashboard.putData("Auto", autoChooser);
   }
