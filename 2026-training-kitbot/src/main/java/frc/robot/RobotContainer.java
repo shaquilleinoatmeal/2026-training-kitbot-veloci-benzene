@@ -2,14 +2,11 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveDistance;
 import frc.robot.commands.SimpleDriveStraight;
 import frc.robot.commands.SimpleDriveStraight.StraightMode;
@@ -62,24 +59,6 @@ public class RobotContainer {
 
     SmartDashboard.putData(
         "Reset sensors", Commands.runOnce(drivetrain::resetSensors).ignoringDisable(true));
-
-    Trigger testMode = new Trigger(DriverStation::isTest);
-    driverController
-        .a()
-        .and(testMode)
-        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    driverController
-        .b()
-        .and(testMode)
-        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    driverController
-        .x()
-        .and(testMode)
-        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    driverController
-        .y()
-        .and(testMode)
-        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   // Pick the auton on the dashboard under "Auto" BEFORE enabling.

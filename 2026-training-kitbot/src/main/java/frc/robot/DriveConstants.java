@@ -64,7 +64,6 @@ public final class DriveConstants {
   public static final double DISTANCE_TOLERANCE_INCHES = 1.0;
   public static final double VELOCITY_TOLERANCE_IN_PER_SEC = 2.0;
   public static final double AUTO_TIMEOUT_SECONDS = 6.0;
-  public static final double SYSID_STEP_VOLTS = 4.0;
 
   // Simple "drive until the encoders say 10 ft" auton (SimpleDriveStraight).
   public static final double AUTO_DISTANCE_INCHES = 120.0;

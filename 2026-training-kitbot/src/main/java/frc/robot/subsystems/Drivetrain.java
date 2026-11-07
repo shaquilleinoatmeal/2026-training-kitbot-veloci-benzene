@@ -1,9 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.InchesPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -26,9 +22,7 @@ import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DriveConstants;
 
 public class Drivetrain extends SubsystemBase {
@@ -68,26 +62,6 @@ public class Drivetrain extends SubsystemBase {
 
   private final DifferentialDriveOdometry odometry;
   private final Field2d field = new Field2d();
-
-  private final SysIdRoutine sysIdRoutine =
-      new SysIdRoutine(
-          new SysIdRoutine.Config(null, Volts.of(DriveConstants.SYSID_STEP_VOLTS), null),
-          new SysIdRoutine.Mechanism(
-              volts -> {
-                double output = volts.in(Volts) / DriveConstants.VOLTAGE_COMPENSATION_VOLTS;
-                tankDrive(output, output);
-              },
-              log -> {
-                log.motor("drive-left")
-                    .voltage(Volts.of(leftOutput * DriveConstants.VOLTAGE_COMPENSATION_VOLTS))
-                    .linearPosition(Inches.of(getLeftInches()))
-                    .linearVelocity(InchesPerSecond.of(getLeftInchesPerSecond()));
-                log.motor("drive-right")
-                    .voltage(Volts.of(rightOutput * DriveConstants.VOLTAGE_COMPENSATION_VOLTS))
-                    .linearPosition(Inches.of(getRightInches()))
-                    .linearVelocity(InchesPerSecond.of(getRightInchesPerSecond()));
-              },
-              this));
 
   private DifferentialDrivetrainSim driveSim;
   private double simLeftOffsetInches;
@@ -172,14 +146,6 @@ public class Drivetrain extends SubsystemBase {
 
   public void stop() {
     drive.stopMotor();
-  }
-
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.quasistatic(direction);
-  }
-
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.dynamic(direction);
   }
 
   public void resetEncoders() {
